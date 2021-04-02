@@ -16,6 +16,7 @@ const Binance = require('node-binance-api')
 const config = require('./config.js')
 const pumpConfig = require('./pump-config.js')
 const utils = require('./utils.js')
+const axios = require('axios')
 
 const { API_KEY, API_SECRET, HTTP_INTERVAL } = config
 
@@ -363,9 +364,16 @@ function market_sell(percent, retry = true) {
             market_sell(percent)
           })
         }
-
         return
       }
+      
+      var options = { text: `Market Sell ${percent * 100}% SUCCESS`}
+
+      axios({
+        method: 'POST',
+        url: 'https://hooks.slack.com/services/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',
+        data: JSON.stringify(options)
+      })
       console.info(chalk.bgRed(`Market Sell ${percent * 100}% SUCCESS`))
       // Now you can limit sell with a stop loss, etc.
       setTimeout(getBalance, 1500)
@@ -522,6 +530,17 @@ function getBalance(init = false, cb) {
 function start() {
   //minQty = minimum order quantity
   //minNotional = minimum order value (price * quantity)
+  // var options = { text: `Market Start`}
+
+  // axios({
+  //   method: 'POST',
+  //   url: 'https://hooks.slack.com/services/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',
+  //   data: JSON.stringify(options)
+  // }).then(res => {
+  //   console.log(res)
+  // }).catch(err => {
+  //   console.log(err)
+  // })
   binance.exchangeInfo(function (error, data) {
     if (error) {
       console.log(chalk.red(`GET exchangeInfo failed, exiting...`))
